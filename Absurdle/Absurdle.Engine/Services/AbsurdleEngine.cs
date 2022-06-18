@@ -13,7 +13,7 @@ namespace Absurdle.Engine.Services
         private IEnumerable<string> _currentPossibleSolutions = Enumerable.Empty<string>();
 
         public IEnumerable<CharacterHint> WordHint { get; protected set; }
-            = Array.Empty<CharacterHint>();
+            = Enumerable.Empty<CharacterHint>();
 
         public AbsurdleEngine(
             IReadSolutionWordsService readSolutionWordsService,
@@ -51,7 +51,9 @@ namespace Absurdle.Engine.Services
         /// <param name="guess"></param>
         private void Update(string guess)
         {
-            IDictionary<IEnumerable<CharacterHint>, ICollection<string>> equivalenceClasses
+            // The mapping of each word hint (i.e. equivalence class) to
+            // its associated collection of posible solution words
+            IDictionary<IEnumerable<CharacterHint>, ICollection<string>> wordHintsToPossibleSolutions
                 = new Dictionary<IEnumerable<CharacterHint>, ICollection<string>>(
                     new EnumerableEqualityComparer<CharacterHint>()
                 );
@@ -62,21 +64,21 @@ namespace Absurdle.Engine.Services
                 IEnumerable<CharacterHint> wordHint = ComputeWordHint(guess, solution);
 
                 // Ensure this equivalence class exists in the dictionary
-                equivalenceClasses.TryAdd(wordHint, new HashSet<string>());
+                wordHintsToPossibleSolutions.TryAdd(wordHint, new HashSet<string>());
 
                 // Add the solution to the equivalence class
-                equivalenceClasses[wordHint].Add(solution);
+                wordHintsToPossibleSolutions[wordHint].Add(solution);
             }
 
             _logger.LogInformation(
                 "Computed {equivalenceClassesCount} bucket(s)",
-                equivalenceClasses.Count
+                wordHintsToPossibleSolutions.Count
             );
 
-            WordHint = ChooseNextWordHint(equivalenceClasses);
+            WordHint = ChooseNextWordHint(wordHintsToPossibleSolutions);
 
             // Update the new possible solutions to be the members of the largest equivalence class
-            _currentPossibleSolutions = equivalenceClasses[WordHint];
+            _currentPossibleSolutions = wordHintsToPossibleSolutions[WordHint];
 
             _logger.LogInformation(
                 "The largest bucket contains {currentPossibleSolutionsCount} possible solutions",
@@ -85,18 +87,17 @@ namespace Absurdle.Engine.Services
         }
 
         /// <summary>
-        /// Chooses a new 
+        /// Finds the largest equivalence class and returns it
+        /// TODO: add a policy for choosing between equivalence classes of equal size
+        /// A good policy might be to discard the winning equivalence class and select 
+        /// at random from the remaining
         /// </summary>
-        /// <param name="equivalenceClasses"></param>
+        /// <param name="wordHintsToPossibleSolutions"></param>
         /// <returns></returns>
         private static IEnumerable<CharacterHint> ChooseNextWordHint(
-            IDictionary<IEnumerable<CharacterHint>, ICollection<string>> equivalenceClasses
-        )
-        {
-            // Find the largest equivalence class
-            // TODO: add a policy for choosing between equivalence classes of equal size
-            return equivalenceClasses.MaxBy(pair => pair.Value.Count).Key;
-        }
+            IDictionary<IEnumerable<CharacterHint>,
+            ICollection<string>> wordHintsToPossibleSolutions
+        ) => wordHintsToPossibleSolutions.MaxBy(pair => pair.Value.Count).Key;
 
         /// <summary>
         /// Takes a solution and classifies it against a guess
