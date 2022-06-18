@@ -1,8 +1,10 @@
-﻿namespace Absurdle.Engine.Services
+﻿using Absurdle.Engine.Model;
+
+namespace Absurdle.Engine.Services
 {
     public interface IAbsurdleEngine
     {
-        public Task Init();
+        public Task Init(CancellationToken token = default);
 
         public Task<bool> MakeGuess(string guess, CancellationToken token = default);
 

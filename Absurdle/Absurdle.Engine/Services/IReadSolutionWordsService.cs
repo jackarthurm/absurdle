@@ -2,7 +2,7 @@
 {
     public interface IReadSolutionWordsService
     {
-        public Task Init();
-        public IEnumerable<string> SolutionWords { get; }
+        public Task Init(CancellationToken token = default);
+        public ICollection<string> SolutionWords { get; }
     }
 }

@@ -37,10 +37,10 @@ namespace Absurdle.UI
             _logger = logger;
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken token)
         {
             _logger.LogInformation("Starting absurdle engine");
-            await _absurdle.Init();
+            await _absurdle.Init(token);
             _logger.LogInformation("Absurdle engine is ready");
 
             // Accept valid guesses until the engine is solved
@@ -54,14 +54,14 @@ namespace Absurdle.UI
 
                 do
                 {
-                    if (cancellationToken.IsCancellationRequested)
+                    if (token.IsCancellationRequested)
                         return;
 
                     _consoleService.WriteLine("Enter a guess:");
                     guess = _consoleService.ReadLine();
 
                     if (guess != null)
-                        guessIsValid = await _absurdle.MakeGuess(guess, cancellationToken);
+                        guessIsValid = await _absurdle.MakeGuess(guess, token);
 
                     if (!guessIsValid)
                         _consoleService.WriteLine($"Guess \"{guess}\" was invalid");
@@ -83,6 +83,6 @@ namespace Absurdle.UI
             _consoleService.WriteLine($"You beat absurdle in {guessesCount} guesses");
         }
 
-        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task StopAsync(CancellationToken token) => Task.CompletedTask;
     }
 }

@@ -5,7 +5,7 @@ namespace Absurdle.Engine.Services
 {
     /// <summary>
     /// Stores an array of valid guess words read from a data service
-    /// Allows validating words against the valid words array
+    /// Allows validating words against the valid guess words collection
     /// </summary>
     public class GuessWordValidatorService : IGuessWordValidatorService
     {
@@ -26,11 +26,11 @@ namespace Absurdle.Engine.Services
             _logger = logger;
         }
 
-        public async Task Init()
+        public async Task Init(CancellationToken token = default)
         {
             _validGuessWords = await _validGuessWordsService
-                .ReadWordsAsync()
-                .ToArrayAsync();
+                .ReadWordsAsync(token)
+                .ToArrayAsync(token);
 
             _logger.LogInformation(
                 "Read {validGuessesCount} valid guess words from file",

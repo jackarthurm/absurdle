@@ -1,5 +1,6 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
+using System.Runtime.CompilerServices;
 
 namespace Absurdle.DataImport.Services
 {
@@ -21,7 +22,9 @@ namespace Absurdle.DataImport.Services
             _csvReader = new(_reader, csvConfiguration);
         }
 
-        public async IAsyncEnumerable<string> ReadWordsAsync()
+        public async IAsyncEnumerable<string> ReadWordsAsync(
+            [EnumeratorCancellation] CancellationToken token = default
+        )
         {
             while (await _csvReader.ReadAsync())
                 yield return _csvReader.GetField<string>(0);

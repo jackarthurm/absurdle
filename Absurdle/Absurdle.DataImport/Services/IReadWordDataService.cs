@@ -2,7 +2,7 @@
 {
     public interface IReadWordDataService
     {
-        public IAsyncEnumerable<string> ReadWordsAsync();
+        public IAsyncEnumerable<string> ReadWordsAsync(CancellationToken token = default);
         public IEnumerable<string> ReadWords();
     }
 }

@@ -2,7 +2,7 @@
 {
     public interface IGuessWordValidatorService
     {
-        public Task Init();
+        public Task Init(CancellationToken token = default);
         public bool IsValid(string guessWord);
     }
 }

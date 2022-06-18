@@ -23,10 +23,10 @@ namespace Absurdle.Engine.Services
             _guessValidatorService = guessValidatorService;
         }
 
-        public async Task Init()
+        public async Task Init(CancellationToken token = default)
         {
-            await _guessValidatorService.Init();
-            await _readSolutionWordsService.Init();
+            await _guessValidatorService.Init(token);
+            await _readSolutionWordsService.Init(token);
 
             _currentPossibleSolutions = _readSolutionWordsService.SolutionWords;
         }
