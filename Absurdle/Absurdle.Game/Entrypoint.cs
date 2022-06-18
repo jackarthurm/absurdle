@@ -25,14 +25,13 @@ await new HostBuilder()
         .AddTransient<CsvConfiguration>(
             sp => new(CultureInfo.InvariantCulture) { HasHeaderRecord = false }
         )
-        .AddTransient<CaseInsensitiveStringComparer>()
         .AddTransient<IGuessWordValidatorService, GuessWordValidatorService>(
             sp => new(
                 new ReadWordCsvDataService(
                     validGuesses,
                     sp.GetRequiredService<CsvConfiguration>()
                 ),
-                sp.GetRequiredService<CaseInsensitiveStringComparer>(),
+                StringComparer.InvariantCultureIgnoreCase,
                 sp.GetRequiredService<ILogger<GuessWordValidatorService>>()
             )
         )
