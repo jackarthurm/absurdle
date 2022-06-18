@@ -1,5 +1,4 @@
 ﻿using Absurdle.DataImport.Services;
-using Absurdle.Engine;
 using Absurdle.Engine.Services;
 using Absurdle.UI;
 using Absurdle.UI.Services;
@@ -46,6 +45,6 @@ await new HostBuilder()
         )
         .AddTransient<IAbsurdleEngine, AbsurdleEngine>()
         .AddTransient<IConsoleService, ConsoleService>()
-        .AddHostedService<ConsoleApplication>()
+        .AddHostedService<AbsurdleGame>()
     )
     .RunConsoleAsync();

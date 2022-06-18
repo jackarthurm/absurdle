@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Absurdle.UI
 {
-    internal class ConsoleApplication : IHostedService
+    internal class AbsurdleGame : BackgroundService
     {
         private const string _textColorResetEscapeSequence = "\u001b[0m";
         private const string _textColorGreenEscapeSequence = "\u001b[32m";
@@ -23,12 +23,12 @@ namespace Absurdle.UI
 
         private readonly IAbsurdleEngine _absurdle;
         private readonly IConsoleService _consoleService;
-        private readonly ILogger<ConsoleApplication> _logger;
+        private readonly ILogger<AbsurdleGame> _logger;
 
-        public ConsoleApplication(
+        public AbsurdleGame(
             IAbsurdleEngine absurdle,
             IConsoleService consoleService,
-            ILogger<ConsoleApplication> logger
+            ILogger<AbsurdleGame> logger
         )
         {
             _absurdle = absurdle;
@@ -36,7 +36,7 @@ namespace Absurdle.UI
             _logger = logger;
         }
 
-        public async Task StartAsync(CancellationToken token)
+        protected async override Task ExecuteAsync(CancellationToken token)
         {
             _logger.LogInformation("Starting absurdle engine");
             await _absurdle.Init(token);
@@ -53,9 +53,6 @@ namespace Absurdle.UI
 
                 do
                 {
-                    if (token.IsCancellationRequested)
-                        return;
-
                     _consoleService.WriteLine("Enter a guess:");
                     guess = _consoleService.ReadLine();
 
@@ -65,7 +62,7 @@ namespace Absurdle.UI
                     if (!guessIsValid)
                         _consoleService.WriteLine($"Guess \"{guess}\" was invalid");
                 }
-                while (guess is null || !guessIsValid);
+                while (!token.IsCancellationRequested && guess is null || !guessIsValid);
 
                 ++guessesCount;
 
@@ -81,7 +78,5 @@ namespace Absurdle.UI
 
             _consoleService.WriteLine($"You beat absurdle in {guessesCount} guesses");
         }
-
-        public Task StopAsync(CancellationToken token) => Task.CompletedTask;
     }
 }
