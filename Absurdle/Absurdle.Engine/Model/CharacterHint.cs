@@ -1,4 +1,4 @@
-﻿namespace Absurdle.Engine
+﻿namespace Absurdle.Engine.Model
 {
     /// <summary>
     /// These values correspond to the wordle & absurdle green/yellow/blank states

@@ -1,4 +1,4 @@
-﻿namespace Absurdle.Engine
+﻿namespace Absurdle.Engine.Utils
 {
     /// <summary>
     /// An equality comparer for enumerables.
@@ -12,11 +12,12 @@
             if (x is null || y is null)
                 return x is null && y is null;
 
-            return x.Zip(y).All(pair => pair.First.Equals(pair.Second));
+            return x.SequenceEqual(y);
         }
 
         /// <summary>
-        /// The hash of the enumerable is computed from the combined hashes of its elements
+        /// The hash of the enumerable is computed from 
+        /// the combined hashes of its elements
         /// </summary>
         /// <param name="enumerable"></param>
         /// <returns></returns>

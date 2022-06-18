@@ -4,35 +4,34 @@ using Microsoft.Extensions.Logging;
 namespace Absurdle.Engine.Services
 {
     /// <summary>
-    /// Stores an array of possible solution words read from a data service
+    /// Stores a collection of possible solution words read from a data service
     /// </summary>
     public class ReadSolutionWordsService : IReadSolutionWordsService
     {
-        private readonly IReadWordDataService _readInitialSolutionWordsService;
+        private readonly IReadWordDataService _readWordDataService;
         private readonly ILogger<ReadSolutionWordsService> _logger;
 
-        private ICollection<string> _solutionWords = Array.Empty<string>();
-
-        public IEnumerable<string> SolutionWords => _solutionWords;
+        public ICollection<string> SolutionWords { get; protected set; }
+            = Array.Empty<string>();
 
         public ReadSolutionWordsService(
-            IReadWordDataService initialSolutionsService,
+            IReadWordDataService readWordDataService,
             ILogger<ReadSolutionWordsService> logger
         )
         {
-            _readInitialSolutionWordsService = initialSolutionsService;
+            _readWordDataService = readWordDataService;
             _logger = logger;
         }
 
-        public async Task Init()
+        public async Task Init(CancellationToken token = default)
         {
-            _solutionWords = await _readInitialSolutionWordsService
-                .ReadWordsAsync()
-                .ToArrayAsync();
+            SolutionWords = await _readWordDataService
+                .ReadWordsAsync(token)
+                .ToArrayAsync(token);
 
             _logger.LogInformation(
                 "Read {solutionsWordsCount} possible solution words from file",
-                _solutionWords.Count
+                SolutionWords.Count
             );
         }
     }

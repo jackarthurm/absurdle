@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Absurdle.Engine.Model;
+using Absurdle.Engine.Utils;
+using Microsoft.Extensions.Logging;
 
 namespace Absurdle.Engine.Services
 {
@@ -10,7 +12,8 @@ namespace Absurdle.Engine.Services
 
         private IEnumerable<string> _currentPossibleSolutions = Enumerable.Empty<string>();
 
-        public IEnumerable<CharacterHint> WordHint { get; private set; } = Array.Empty<CharacterHint>();
+        public IEnumerable<CharacterHint> WordHint { get; protected set; }
+            = Array.Empty<CharacterHint>();
 
         public AbsurdleEngine(
             IReadSolutionWordsService readSolutionWordsService,
@@ -56,13 +59,13 @@ namespace Absurdle.Engine.Services
             // For every solution, compute the solution's new equivalence class based on the new guess
             foreach (string solution in _currentPossibleSolutions)
             {
-                IEnumerable<CharacterHint> equivalenceClass = Classify(guess, solution);
+                IEnumerable<CharacterHint> wordHint = ComputeWordHint(guess, solution);
 
                 // Ensure this equivalence class exists in the dictionary
-                equivalenceClasses.TryAdd(equivalenceClass, new HashSet<string>());
+                equivalenceClasses.TryAdd(wordHint, new HashSet<string>());
 
                 // Add the solution to the equivalence class
-                equivalenceClasses[equivalenceClass].Add(solution);
+                equivalenceClasses[wordHint].Add(solution);
             }
 
             _logger.LogInformation(
@@ -86,7 +89,7 @@ namespace Absurdle.Engine.Services
         /// </summary>
         /// <param name="equivalenceClasses"></param>
         /// <returns></returns>
-        private IEnumerable<CharacterHint> ChooseNextWordHint(
+        private static IEnumerable<CharacterHint> ChooseNextWordHint(
             IDictionary<IEnumerable<CharacterHint>, ICollection<string>> equivalenceClasses
         )
         {
@@ -101,7 +104,7 @@ namespace Absurdle.Engine.Services
         /// </summary>
         /// <param name="guess"></param>
         /// <param name="solution"></param>
-        private static IEnumerable<CharacterHint> Classify(string guess, string solution)
+        private static IEnumerable<CharacterHint> ComputeWordHint(string guess, string solution)
         {
             for (int i = 0; i < guess.Length; ++i)
             {

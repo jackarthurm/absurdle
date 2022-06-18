@@ -1,9 +1,8 @@
-﻿using Absurdle.Engine;
+﻿using Absurdle.Engine.Model;
 using Absurdle.Engine.Services;
 using Absurdle.UI.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
 
 namespace Absurdle.UI
 {
