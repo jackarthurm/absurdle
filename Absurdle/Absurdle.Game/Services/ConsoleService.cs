@@ -1,4 +1,4 @@
-﻿namespace Absurdle.UI.Services
+﻿namespace Absurdle.Game.Services
 {
     internal class ConsoleService : IConsoleService
     {

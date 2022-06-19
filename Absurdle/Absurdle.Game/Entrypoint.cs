@@ -1,7 +1,6 @@
 ﻿using Absurdle.DataImport.Services;
 using Absurdle.Engine.Services;
-using Absurdle.UI;
-using Absurdle.UI.Services;
+using Absurdle.Game.Services;
 using CsvHelper.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -43,8 +42,8 @@ await new HostBuilder()
                 sp.GetRequiredService<ILogger<ReadSolutionWordsService>>()
             )
         )
-        .AddTransient<IAbsurdleEngine, AbsurdleEngine>()
+        .AddTransient<IAbsurdleEngineService, AbsurdleEngineService>()
         .AddTransient<IConsoleService, ConsoleService>()
-        .AddHostedService<AbsurdleGame>()
+        .AddHostedService<AbsurdleGameService>()
     )
     .RunConsoleAsync();
