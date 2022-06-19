@@ -7,6 +7,7 @@ namespace Absurdle.DataImport.Services
     /// <summary>
     /// Reads Absurdle word data from CSV files
     /// Assumes one word per line
+    /// TODO: error handling for bad data
     /// </summary>
     public class ReadWordCsvDataService : IReadWordDataService, IDisposable
     {
