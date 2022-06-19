@@ -102,6 +102,8 @@ namespace Absurdle.Engine.Services
         /// <summary>
         /// Takes a solution and classifies it against a guess
         /// The guess and solution must be of the same length
+        /// TODO: The original absurdle doesn't seem to mark duplicate 
+        /// characters both yellow whereas this one does
         /// </summary>
         /// <param name="guess"></param>
         /// <param name="solution"></param>

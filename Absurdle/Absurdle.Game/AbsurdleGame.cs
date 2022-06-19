@@ -38,7 +38,7 @@ namespace Absurdle.UI
 
         protected async override Task ExecuteAsync(CancellationToken token)
         {
-            _logger.LogInformation("Starting absurdle engine");
+            _logger.LogInformation("Starting absurdle engine...");
             await _absurdle.Init(token);
             _logger.LogInformation("Absurdle engine is ready");
 
