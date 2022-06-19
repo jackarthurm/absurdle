@@ -8,8 +8,6 @@ namespace Absurdle.Engine.Services
 
         public Task<bool> MakeGuess(string guess, CancellationToken token = default);
 
-        public int PossibleSolutionsCount { get; }
-
         public IEnumerable<CharacterHint> WordHint { get; }
 
         public virtual bool IsSolved

@@ -15,8 +15,6 @@ namespace Absurdle.Engine.Services
         public IEnumerable<CharacterHint> WordHint { get; protected set; }
             = Enumerable.Empty<CharacterHint>();
 
-        public int PossibleSolutionsCount => _currentPossibleSolutions.Count;
-
         public AbsurdleEngineService(
             IReadSolutionWordsService readSolutionWordsService,
             IGuessWordValidatorService guessValidatorService,
@@ -82,8 +80,8 @@ namespace Absurdle.Engine.Services
             _currentPossibleSolutions = wordHintsToPossibleSolutions[WordHint];
 
             _logger.LogInformation(
-                "The largest bucket contains {possibleSolutionsCount} possible solutions",
-                PossibleSolutionsCount
+                "The largest bucket contains {currentPossibleSolutionsCount} possible solutions",
+                _currentPossibleSolutions.Count
             );
         }
 
