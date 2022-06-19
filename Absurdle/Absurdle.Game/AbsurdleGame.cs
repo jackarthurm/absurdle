@@ -56,17 +56,20 @@ namespace Absurdle.UI
                     _consoleService.WriteLine("Enter a guess:");
                     guess = _consoleService.ReadLine();
 
-                    if (guess != null)
-                        guessIsValid = await _absurdle.MakeGuess(guess, token);
+                    if (guess is null)
+                        return; // No more lines are available to read, the game is over
+
+                    guessIsValid = await _absurdle.MakeGuess(guess, token);
 
                     if (!guessIsValid)
                         _consoleService.WriteLine($"Guess \"{guess}\" was invalid");
                 }
-                while (!token.IsCancellationRequested && guess is null || !guessIsValid);
+                while (!token.IsCancellationRequested && !guessIsValid);
 
                 ++guessesCount;
 
                 // Print the current result
+                _consoleService.WriteLine(guess);
                 _consoleService.WriteLine(
                     string.Join(
                         string.Empty,
