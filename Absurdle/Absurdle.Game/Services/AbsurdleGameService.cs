@@ -1,12 +1,11 @@
 ﻿using Absurdle.Engine.Model;
 using Absurdle.Engine.Services;
-using Absurdle.UI.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Absurdle.UI
+namespace Absurdle.Game.Services
 {
-    internal class AbsurdleGame : BackgroundService
+    internal class AbsurdleGameService : BackgroundService
     {
         private const string _textColorResetEscapeSequence = "\u001b[0m";
         private const string _textColorGreenEscapeSequence = "\u001b[32m";
@@ -21,14 +20,14 @@ namespace Absurdle.UI
                 {CharacterHint.NoMatch, "B"},
             };
 
-        private readonly IAbsurdleEngine _absurdle;
+        private readonly IAbsurdleEngineService _absurdle;
         private readonly IConsoleService _consoleService;
-        private readonly ILogger<AbsurdleGame> _logger;
+        private readonly ILogger<AbsurdleGameService> _logger;
 
-        public AbsurdleGame(
-            IAbsurdleEngine absurdle,
+        public AbsurdleGameService(
+            IAbsurdleEngineService absurdle,
             IConsoleService consoleService,
-            ILogger<AbsurdleGame> logger
+            ILogger<AbsurdleGameService> logger
         )
         {
             _absurdle = absurdle;

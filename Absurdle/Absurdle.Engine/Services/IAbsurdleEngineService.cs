@@ -2,7 +2,7 @@
 
 namespace Absurdle.Engine.Services
 {
-    public interface IAbsurdleEngine
+    public interface IAbsurdleEngineService
     {
         public Task Init(CancellationToken token = default);
 

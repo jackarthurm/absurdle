@@ -4,9 +4,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Absurdle.Engine.Services
 {
-    public class AbsurdleEngine : IAbsurdleEngine
+    public class AbsurdleEngineService : IAbsurdleEngineService
     {
-        private readonly ILogger<AbsurdleEngine> _logger;
+        private readonly ILogger<AbsurdleEngineService> _logger;
         private readonly IReadSolutionWordsService _readSolutionWordsService;
         private readonly IGuessWordValidatorService _guessValidatorService;
 
@@ -15,10 +15,10 @@ namespace Absurdle.Engine.Services
         public IEnumerable<CharacterHint> WordHint { get; protected set; }
             = Enumerable.Empty<CharacterHint>();
 
-        public AbsurdleEngine(
+        public AbsurdleEngineService(
             IReadSolutionWordsService readSolutionWordsService,
             IGuessWordValidatorService guessValidatorService,
-            ILogger<AbsurdleEngine> logger
+            ILogger<AbsurdleEngineService> logger
         )
         {
             _logger = logger;
@@ -46,13 +46,12 @@ namespace Absurdle.Engine.Services
 
         /// <summary>
         /// Updates the current possible solutions based on a new guess word
-        /// Returns the new hint
         /// </summary>
         /// <param name="guess"></param>
         private void Update(string guess)
         {
             // The mapping of each word hint (i.e. equivalence class) to
-            // its associated collection of posible solution words
+            // its associated collection of possible solution words
             IDictionary<IEnumerable<CharacterHint>, ICollection<string>> wordHintsToPossibleSolutions
                 = new Dictionary<IEnumerable<CharacterHint>, ICollection<string>>(
                     new EnumerableEqualityComparer<CharacterHint>()
