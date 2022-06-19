@@ -10,10 +10,12 @@ namespace Absurdle.Engine.Services
         private readonly IReadSolutionWordsService _readSolutionWordsService;
         private readonly IGuessWordValidatorService _guessValidatorService;
 
-        private IEnumerable<string> _currentPossibleSolutions = Enumerable.Empty<string>();
+        private ICollection<string> _currentPossibleSolutions = Array.Empty<string>();
 
         public IEnumerable<CharacterHint> WordHint { get; protected set; }
             = Enumerable.Empty<CharacterHint>();
+
+        public int PossibleSolutionsCount => _currentPossibleSolutions.Count;
 
         public AbsurdleEngineService(
             IReadSolutionWordsService readSolutionWordsService,
@@ -80,8 +82,8 @@ namespace Absurdle.Engine.Services
             _currentPossibleSolutions = wordHintsToPossibleSolutions[WordHint];
 
             _logger.LogInformation(
-                "The largest bucket contains {currentPossibleSolutionsCount} possible solutions",
-                _currentPossibleSolutions.Count()
+                "The largest bucket contains {possibleSolutionsCount} possible solutions",
+                PossibleSolutionsCount
             );
         }
 
