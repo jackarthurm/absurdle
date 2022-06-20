@@ -1,6 +1,6 @@
 ﻿using Absurdle.DataImport.Services;
-using Absurdle.Engine;
 using Absurdle.Engine.Services;
+using Absurdle.Solver.Services;
 using CsvHelper.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,17 +23,17 @@ await new HostBuilder()
         .AddTransient<CsvConfiguration>(
             sp => new(CultureInfo.InvariantCulture) { HasHeaderRecord = false }
         )
-        .AddTransient<IGuessWordValidatorService, GuessWordValidatorService>(
+        .AddSingleton<IGuessWordValidator, GuessWordValidatorService>(
             sp => new(
                 new ReadWordCsvDataService(
                     validGuesses,
                     sp.GetRequiredService<CsvConfiguration>()
                 ),
-                new CaseInsensitiveStringComparer(),
+                StringComparer.InvariantCultureIgnoreCase,
                 sp.GetRequiredService<ILogger<GuessWordValidatorService>>()
             )
         )
-        .AddTransient<IReadSolutionWordsService, ReadSolutionWordsService>(
+        .AddSingleton<IReadSolutionWords, ReadSolutionWordsService>(
             sp => new(
                 new ReadWordCsvDataService(
                     possibleSolutions,
@@ -42,29 +42,14 @@ await new HostBuilder()
                 sp.GetRequiredService<ILogger<ReadSolutionWordsService>>()
             )
         )
-        .AddTransient<IEngine, Engine>()
-        .AddTransient<IPermutationsGenerator<CharacterComparisonResult>, PermutationsGenerator<CharacterComparisonResult>>(
-            sp => new(
-                new CharacterComparisonResult[] {
-                    CharacterComparisonResult.NoMatch,
-                    CharacterComparisonResult.ValueMatches,
-                    CharacterComparisonResult.PositionAndValueMatches
-                }
+        .AddTransient<Func<ICollection<string>, IAbsurdleEngineWithMetrics>>(
+            sp => solutions => new AbsurdleEngineService(
+                solutions,
+                sp.GetRequiredService<IGuessWordValidator>(),
+                sp.GetRequiredService<ILogger<AbsurdleEngineService>>()
             )
-        ).AddHostedService<>
+        )
+        .AddTransient<IConsole, ConsoleService>()
+        .AddHostedService<AbsurdleSolverService>()
     )
     .RunConsoleAsync();
-
-        // Create the equivalence classes hashmap
-        /*            IEnumerable<IEnumerable<CharacterComparisonResult>> permutations
-                    = _permutationsService.ComputePermutationsWithRepetition(_wordSize);
-
-                    foreach (IEnumerable<CharacterComparisonResult> permutation in permutations)
-                        _equivalenceClasses[permutation.ToArray()] = new List<string>();
-
-                    _logger.LogInformation(
-                        "Computed {numEquivalenceClasses} initial equivalence classes",
-                        _equivalenceClasses.Count
-                    );*/
-    }
-}

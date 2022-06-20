@@ -5,14 +5,16 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<OutputType>Exe</OutputType>
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="CsvHelper" Version="27.2.1" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Absurdle.Engine\Absurdle.Engine.csproj" />
+	  <ProjectReference Include="..\Absurdle.Engine\Absurdle.Engine.csproj" />
 	</ItemGroup>
 
 </Project>

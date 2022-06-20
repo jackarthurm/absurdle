@@ -5,13 +5,11 @@ VisualStudioVersion = 17.2.32505.173
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Absurdle.Game", "Absurdle\Absurdle.Game\Absurdle.Game.csproj", "{E2957B69-B899-4B78-B3BF-56E358D935EE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Absurdle.Engine.Test", "Absurdle.Test\Absurdle.Engine.Test\Absurdle.Engine.Test.csproj", "{2ABA220C-3879-4C3F-B8E5-6780594F0890}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Absurdle.DataImport", "Absurdle\Absurdle.DataImport\Absurdle.DataImport.csproj", "{8ED957EC-E1A4-4B0E-A3D3-3E45679C4158}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Absurdle.Solver", "Absurdle\Absurdle.Solver\Absurdle.Solver.csproj", "{99E959E1-134F-4307-BBB5-FF48111298AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Absurdle.Solver", "Absurdle\Absurdle.Solver\Absurdle.Solver.csproj", "{99E959E1-134F-4307-BBB5-FF48111298AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Absurdle.Engine", "Absurdle\Absurdle.Engine\Absurdle.Engine.csproj", "{D425D0F2-5A52-46B1-840A-D5F0CCC641E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Absurdle.Engine", "Absurdle\Absurdle.Engine\Absurdle.Engine.csproj", "{D425D0F2-5A52-46B1-840A-D5F0CCC641E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +21,6 @@ Global
 		{E2957B69-B899-4B78-B3BF-56E358D935EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E2957B69-B899-4B78-B3BF-56E358D935EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E2957B69-B899-4B78-B3BF-56E358D935EE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2ABA220C-3879-4C3F-B8E5-6780594F0890}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2ABA220C-3879-4C3F-B8E5-6780594F0890}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2ABA220C-3879-4C3F-B8E5-6780594F0890}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2ABA220C-3879-4C3F-B8E5-6780594F0890}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8ED957EC-E1A4-4B0E-A3D3-3E45679C4158}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8ED957EC-E1A4-4B0E-A3D3-3E45679C4158}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8ED957EC-E1A4-4B0E-A3D3-3E45679C4158}.Release|Any CPU.ActiveCfg = Release|Any CPU
