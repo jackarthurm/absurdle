@@ -23,7 +23,7 @@ await new HostBuilder()
         .AddTransient<CsvConfiguration>(
             sp => new(CultureInfo.InvariantCulture) { HasHeaderRecord = false }
         )
-        .AddTransient<IGuessWordValidatorService, GuessWordValidatorService>(
+        .AddSingleton<IGuessWordValidator, GuessWordValidatorService>(
             sp => new(
                 new ReadWordCsvDataService(
                     validGuesses,
@@ -33,7 +33,7 @@ await new HostBuilder()
                 sp.GetRequiredService<ILogger<GuessWordValidatorService>>()
             )
         )
-        .AddTransient<IReadSolutionWordsService, ReadSolutionWordsService>(
+        .AddSingleton<IReadSolutionWords, ReadSolutionWordsService>(
             sp => new(
                 new ReadWordCsvDataService(
                     possibleSolutions,
