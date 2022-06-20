@@ -9,7 +9,7 @@ namespace Absurdle.DataImport.Services
     /// Assumes one word per line
     /// TODO: error handling for bad data
     /// </summary>
-    public class ReadWordCsvDataService : IReadWordDataService, IDisposable
+    public class ReadWordCsvDataService : IReadWordData, IDisposable
     {
         private readonly TextReader _reader;
         private readonly CsvReader _csvReader;

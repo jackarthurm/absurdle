@@ -6,16 +6,16 @@ namespace Absurdle.Engine.Services
     /// <summary>
     /// Stores a collection of possible solution words read from a data service
     /// </summary>
-    public class ReadSolutionWordsService : IReadSolutionWordsService
+    public class ReadSolutionWordsService : IReadSolutionWords
     {
-        private readonly IReadWordDataService _readWordDataService;
+        private readonly IReadWordData _readWordDataService;
         private readonly ILogger<ReadSolutionWordsService> _logger;
 
         public ICollection<string> SolutionWords { get; protected set; }
             = Array.Empty<string>();
 
         public ReadSolutionWordsService(
-            IReadWordDataService readWordDataService,
+            IReadWordData readWordDataService,
             ILogger<ReadSolutionWordsService> logger
         )
         {

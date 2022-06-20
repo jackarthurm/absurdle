@@ -7,16 +7,16 @@ namespace Absurdle.Engine.Services
     /// Stores an array of valid guess words read from a data service
     /// Allows validating words against the valid guess words collection
     /// </summary>
-    public class GuessWordValidatorService : IGuessWordValidatorService
+    public class GuessWordValidatorService : IGuessWordValidator
     {
-        private readonly IReadWordDataService _validGuessWordsService;
+        private readonly IReadWordData _validGuessWordsService;
         private readonly IEqualityComparer<string> _wordComparer;
         private readonly ILogger<GuessWordValidatorService> _logger;
 
         private ICollection<string> _validGuessWords = Array.Empty<string>();
 
         public GuessWordValidatorService(
-            IReadWordDataService validGuessWordsService,
+            IReadWordData validGuessWordsService,
             IEqualityComparer<string> wordComparer,
             ILogger<GuessWordValidatorService> logger
         )
