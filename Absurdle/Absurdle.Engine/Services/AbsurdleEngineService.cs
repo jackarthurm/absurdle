@@ -4,85 +4,95 @@ using Microsoft.Extensions.Logging;
 
 namespace Absurdle.Engine.Services
 {
-    public class AbsurdleEngineService : IAbsurdleEngineService
+    public class AbsurdleEngineService : IAbsurdleEngineWithMetrics
     {
         private readonly ILogger<AbsurdleEngineService> _logger;
-        private readonly IReadSolutionWordsService _readSolutionWordsService;
-        private readonly IGuessWordValidatorService _guessValidatorService;
+        private readonly IGuessWordValidator _guessWordValidatorService;
 
-        private ICollection<string> _currentPossibleSolutions = Array.Empty<string>();
+        protected ICollection<string> PossibleSolutions { get; set; }
 
-        public IEnumerable<CharacterHint> WordHint { get; protected set; }
-            = Enumerable.Empty<CharacterHint>();
+        public int PossibleSolutionsCount => PossibleSolutions.Count;
+        public int WordHintsCount { get; protected set; } = 0;
+
+        public IEnumerable<CharacterHint>? BestWordHint { get; protected set; }
 
         public AbsurdleEngineService(
-            IReadSolutionWordsService readSolutionWordsService,
-            IGuessWordValidatorService guessValidatorService,
+            ICollection<string> possibleSolutions,
+            IGuessWordValidator guessWordValidatorService,
             ILogger<AbsurdleEngineService> logger
         )
         {
+            _guessWordValidatorService = guessWordValidatorService;
             _logger = logger;
-            _readSolutionWordsService = readSolutionWordsService;
-            _guessValidatorService = guessValidatorService;
+
+            PossibleSolutions = possibleSolutions;
         }
 
-        public async Task Init(CancellationToken token = default)
+        public async Task<bool> AddGuess(string guess, CancellationToken token = default)
         {
-            await _guessValidatorService.Init(token);
-            await _readSolutionWordsService.Init(token);
-
-            _currentPossibleSolutions = _readSolutionWordsService.SolutionWords;
-        }
-
-        public async Task<bool> MakeGuess(string guess, CancellationToken token = default)
-        {
-            if (!_guessValidatorService.IsValid(guess))
+            if (!_guessWordValidatorService.IsValid(guess))
                 return false;
 
-            await Task.Run(() => Update(guess), token);
+            await Task.Run(
+                () => PossibleSolutions = PruneSolutions(PossibleSolutions, guess),
+                token
+            );
 
             return true;
         }
 
         /// <summary>
-        /// Updates the current possible solutions based on a new guess word
+        /// Prunes a collection of possible solutions to be the members of the "best" equivalence class
         /// </summary>
         /// <param name="guess"></param>
-        private void Update(string guess)
+        private ICollection<string> PruneSolutions(ICollection<string> solutions, string guess)
+        {
+            // Classify the current possible solutions against the guess
+            IDictionary<IEnumerable<CharacterHint>, ICollection<string>> wordHintBuckets
+                = ComputeWordHintBuckets(solutions, guess);
+
+            WordHintsCount = wordHintBuckets.Count;
+
+            _logger.LogInformation(
+                "Computed {WordHintsCount} bucket(s)",
+                WordHintsCount
+            );
+
+            BestWordHint = ChooseBestWordHint(wordHintBuckets);
+
+            _logger.LogInformation(
+                "The largest bucket contains {PossibleSolutionsCount} possible solutions",
+                PossibleSolutionsCount
+            );
+
+            return wordHintBuckets[BestWordHint];
+        }
+
+        protected virtual IDictionary<IEnumerable<CharacterHint>, ICollection<string>> ComputeWordHintBuckets(
+            IEnumerable<string> solutions,
+            string guess
+        )
         {
             // The mapping of each word hint (i.e. equivalence class) to
             // its associated collection of possible solution words
-            IDictionary<IEnumerable<CharacterHint>, ICollection<string>> wordHintsToPossibleSolutions
+            IDictionary<IEnumerable<CharacterHint>, ICollection<string>> wordHintBuckets
                 = new Dictionary<IEnumerable<CharacterHint>, ICollection<string>>(
                     new EnumerableEqualityComparer<CharacterHint>()
                 );
 
             // For every solution, compute the solution's new equivalence class based on the new guess
-            foreach (string solution in _currentPossibleSolutions)
+            foreach (string solution in solutions)
             {
                 IEnumerable<CharacterHint> wordHint = ComputeWordHint(guess, solution);
 
                 // Ensure this equivalence class exists in the dictionary
-                wordHintsToPossibleSolutions.TryAdd(wordHint, new HashSet<string>());
+                wordHintBuckets.TryAdd(wordHint, new HashSet<string>());
 
                 // Add the solution to the equivalence class
-                wordHintsToPossibleSolutions[wordHint].Add(solution);
+                wordHintBuckets[wordHint].Add(solution);
             }
 
-            _logger.LogInformation(
-                "Computed {equivalenceClassesCount} bucket(s)",
-                wordHintsToPossibleSolutions.Count
-            );
-
-            WordHint = ChooseNextWordHint(wordHintsToPossibleSolutions);
-
-            // Update the new possible solutions to be the members of the largest equivalence class
-            _currentPossibleSolutions = wordHintsToPossibleSolutions[WordHint];
-
-            _logger.LogInformation(
-                "The largest bucket contains {currentPossibleSolutionsCount} possible solutions",
-                _currentPossibleSolutions.Count
-            );
+            return wordHintBuckets;
         }
 
         /// <summary>
@@ -91,22 +101,24 @@ namespace Absurdle.Engine.Services
         /// A good policy might be to discard the winning equivalence class and select 
         /// at random from the remaining
         /// </summary>
-        /// <param name="wordHintsToPossibleSolutions"></param>
+        /// <param name="wordHints"></param>
         /// <returns></returns>
-        private static IEnumerable<CharacterHint> ChooseNextWordHint(
-            IDictionary<IEnumerable<CharacterHint>,
-            ICollection<string>> wordHintsToPossibleSolutions
-        ) => wordHintsToPossibleSolutions.MaxBy(pair => pair.Value.Count).Key;
+        protected virtual IEnumerable<CharacterHint> ChooseBestWordHint(
+            IDictionary<
+                IEnumerable<CharacterHint>,
+                ICollection<string>
+            > wordHintBuckets
+        ) => wordHintBuckets.MaxBy(pair => pair.Value.Count).Key;
 
         /// <summary>
-        /// Takes a solution and classifies it against a guess
+        /// Takes a solution and compares it against a guess to obtain a word hint
         /// The guess and solution must be of the same length
         /// TODO: The original absurdle doesn't seem to mark duplicate 
         /// characters both yellow whereas this one does
         /// </summary>
         /// <param name="guess"></param>
         /// <param name="solution"></param>
-        private static IEnumerable<CharacterHint> ComputeWordHint(string guess, string solution)
+        protected virtual IEnumerable<CharacterHint> ComputeWordHint(string guess, string solution)
         {
             for (int i = 0; i < guess.Length; ++i)
             {
