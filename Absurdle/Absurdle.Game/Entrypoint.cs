@@ -42,8 +42,14 @@ await new HostBuilder()
                 sp.GetRequiredService<ILogger<ReadSolutionWordsService>>()
             )
         )
-        .AddTransient<IAbsurdleEngineService, AbsurdleEngineService>()
-        .AddTransient<IConsoleService, ConsoleService>()
+        .AddTransient<Func<ICollection<string>, IAbsurdleEngine>>(
+            sp => solutions => new AbsurdleEngineService(
+                solutions,
+                sp.GetRequiredService<IGuessWordValidator>(),
+                sp.GetRequiredService<ILogger<AbsurdleEngineService>>()
+            )
+        )
+        .AddTransient<IConsole, ConsoleService>()
         .AddHostedService<AbsurdleGameService>()
     )
     .RunConsoleAsync();
