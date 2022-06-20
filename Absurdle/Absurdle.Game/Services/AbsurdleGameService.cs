@@ -20,26 +20,35 @@ namespace Absurdle.Game.Services
                 {CharacterHint.NoMatch, "B"},
             };
 
-        private readonly IAbsurdleEngineService _absurdle;
-        private readonly IConsoleService _consoleService;
+        private readonly Func<ICollection<string>, IAbsurdleEngine> _absurdleEngineFactory;
+        private readonly IConsole _consoleService;
         private readonly ILogger<AbsurdleGameService> _logger;
+        private readonly IReadSolutionWords _readSolutionWordsService;
+        private readonly IGuessWordValidator _guessWordValidatorService;
 
         public AbsurdleGameService(
-            IAbsurdleEngineService absurdle,
-            IConsoleService consoleService,
+            Func<ICollection<string>, IAbsurdleEngine> absurdleEngineFactory,
+            IReadSolutionWords readSolutionWordsService,
+            IGuessWordValidator guessWordValidatorService,
+            IConsole consoleService,
             ILogger<AbsurdleGameService> logger
         )
         {
-            _absurdle = absurdle;
+            _absurdleEngineFactory = absurdleEngineFactory;
             _consoleService = consoleService;
             _logger = logger;
+            _readSolutionWordsService = readSolutionWordsService;
+            _guessWordValidatorService = guessWordValidatorService;
         }
 
-        protected async override Task ExecuteAsync(CancellationToken token)
+        protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Starting absurdle engine...");
-            await _absurdle.Init(token);
-            _logger.LogInformation("Absurdle engine is ready");
+            await _readSolutionWordsService.Init(stoppingToken);
+            await _guessWordValidatorService.Init(stoppingToken);
+
+            IAbsurdleEngine absurdleEngine = _absurdleEngineFactory(
+                _readSolutionWordsService.SolutionWords
+            );
 
             // Accept valid guesses until the engine is solved
             ushort guessesCount = 0;
@@ -58,25 +67,32 @@ namespace Absurdle.Game.Services
                     if (guess is null)
                         return; // No more lines are available to read, the game is over
 
-                    guessIsValid = await _absurdle.MakeGuess(guess, token);
+                    guessIsValid = await absurdleEngine.AddGuess(guess, stoppingToken);
 
                     if (!guessIsValid)
                         _consoleService.WriteLine($"Guess \"{guess}\" was invalid");
                 }
-                while (!token.IsCancellationRequested && !guessIsValid);
+                while (!stoppingToken.IsCancellationRequested && !guessIsValid);
 
                 ++guessesCount;
+
+                if (absurdleEngine.BestWordHint is null)
+                {
+                    _logger.LogError("The absurdle engine failed to find a word hint");
+
+                    throw new ApplicationException("Engine error");
+                }
 
                 // Print the current result
                 _consoleService.WriteLine(guess);
                 _consoleService.WriteLine(
                     string.Join(
                         string.Empty,
-                        _absurdle.WordHint.Select(result => _characterResults[result])
+                        absurdleEngine.BestWordHint.Select(result => _characterResults[result])
                     )
                 );
             }
-            while (!_absurdle.IsSolved);
+            while (!absurdleEngine.IsSolved);
 
             _consoleService.WriteLine($"You beat absurdle in {guessesCount} guesses");
         }
