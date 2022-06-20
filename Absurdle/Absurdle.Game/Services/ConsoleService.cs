@@ -1,6 +1,6 @@
 ﻿namespace Absurdle.Game.Services
 {
-    internal class ConsoleService : IConsoleService
+    internal class ConsoleService : IConsole
     {
         public string? ReadLine() => Console.ReadLine();
 
